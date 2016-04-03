@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+	</head>
+	<style>
+		body{ margin: 0; padding: 0;}
+		.pirzeBox{ width: 500px; margin: 0;; padding: 0;}
+		li{list-style: none; width: 50px; height: 50px; display: inline-block; background: #ccc; margin:5px;}
+		li.active{ background: #333;}
+		
+	</style>
+	<body>
+		<div class="pirzeBox"></div>
+	</body>
+	<script src="js/jquery-1.11.1.min.js" type="text/javascript" charset="utf-8"></script>
+	<script>
+		;(function(){
+			function pirze(fng){
+				this.options = $.extend(true, {
+					Box:$(".pirzeBox"),
+					pirzeLength:10,
+					scrollNum:8,
+					active:"active",
+					scrollSpeed:200,
+					lottery:8,
+					winning:["奖品一","奖品二","奖品三","奖品四","奖品五","奖品六","奖品七","奖品八","奖品九","奖品十"],
+				}, fng);
+			};
+			//初始化事件
+			pirze.prototype.init = function(config){
+				//点击开始
+				$(config.btn).on("click",function(){
+					this.goAnimate();
+				}.bind(this));
+			},
+			//创建dom
+			pirze.prototype.creatDom = function(){
+				//创建Dom元素
+				var config = {
+					"ul" : $("<ul>"),
+					"li" : $("<li>"),
+					"btn" : $("<button>",{"class":"Play"}).text("点击开始")
+				}
+				$(this.options.Box).append(config.ul);
+				$("body").append(config.btn);
+				for(var i = 0; i < this.options.pirzeLength; i++){
+					config.ul.append(config.li.clone().text(this.options.winning[i]));
+				};
+				this.init.call(this,config)
+			},
+			//动画
+			pirze.prototype.goAnimate = function(){
+				var _this = this;
+				var loop = 0,Num = 0,scrollSpeed = _this.options.scrollSpeed;
+				function aniamte(){
+					var loopContent = setInterval(function(){
+						$(_this.options.Box).find("li").eq(Num).addClass(_this.options.active).siblings("li").removeClass(_this.options.active);
+						++Num;
+						if(loop == _this.options.scrollNum && Num == _this.options.lottery){
+							_this.winning();
+							clearInterval(loopContent);
+							return false;
+						};
+						if(_this.options.pirzeLength == Num){
+							Num = 0;
+							++loop;
+							clearInterval(loopContent);
+							loop<_this.options.scrollNum-2 ? scrollSpeed = scrollSpeed/2 : scrollSpeed = scrollSpeed*2;
+							aniamte();
+						};
+					},scrollSpeed);
+				};
+				aniamte();
+			},
+			//奖品
+			pirze.prototype.winning = function(){
+				alert("恭喜您中得"+this.options.winning[this.options.lottery-1])
+			}
+			window.Pirze = pirze;
+		})()
+		var Pirze = new Pirze();
+		Pirze.creatDom();
+	</script>
+</html>
